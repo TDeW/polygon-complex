@@ -1,3 +1,4 @@
+import * as R from 'ramda';
 import isects from 'geojson-polygon-self-intersections'
 import helpers from '@turf/helpers'
 import inside from '@turf/inside'
@@ -5,6 +6,7 @@ import area from '@turf/area'
 import rbush from 'rbush'
 
 import checkInput from './checkInput';
+import normalizeVertices from './normalizeVertices';
 
 /**
 * Takes a complex (i.e. self-intersecting) geojson polygon, and breaks
@@ -27,18 +29,9 @@ import checkInput from './checkInput';
 export default feature => {
   checkInput(feature);
 
-  // Process input
-  let numRings = feature.geometry.coordinates.length;
-  let vertices = [];
-  for (let i = 0; i < numRings; i++) {
-    let ring = feature.geometry.coordinates[i];
-    if (!equalArrays(ring[0],ring[ring.length-1])) {
-      ring.push(ring[0]) // Close input ring if it is not
-    }
-    vertices.push.apply(vertices,ring.slice(0,ring.length-1));
-  }
-  if (!isUnique(vertices)) throw new Error('The input polygon may not have duplicate vertices (except for the first and last vertex of each ring)');
-  let numvertices = vertices.length; // number of input ring vertices, with the last closing vertices not counted
+  const ringCount = R.length(R.path(['geometry', 'coordinates'], feature));
+  const vertices = normalizeVertices(R.path(['geometry', 'coordinates'], feature));
+  const verticeCount = R.length(vertices); // number of input ring vertices, with the last closing vertices not counted
 
   // Compute self-intersections
   let selfIsectsData = isects(feature, function filterFn(isect, ring0, edge0, start0, end0, frac0, ring1, edge1, start1, end1, frac1, unique){
@@ -49,7 +42,7 @@ export default feature => {
   // If no self-intersections are found, the input rings are the output rings. Hence, we must only compute their winding numbers, net winding numbers and (since ohers rings could lie outside the first ring) parents.
   if (numSelfIsect == 0) {
     const outputFeatureArray = [];
-    for (let i = 0; i < numRings; i++) {
+    for (let i = 0; i < ringCount; i++) {
       outputFeatureArray.push(helpers.polygon([feature.geometry.coordinates[i]],{parent: -1, winding: windingOfRing(feature.geometry.coordinates[i])}));
     }
     const output = helpers.featureCollection(outputFeatureArray)
@@ -60,17 +53,17 @@ export default feature => {
 
   // If self-intersections are found, we will compute the output rings with the help of two intermediate variables
   // First, we build the pseudo vertex list and intersection list
-  // The Pseudo vertex list is an array with for each ring an array with for each edge an array containing the pseudo-vertices (as made by their constructor) that have this ring and edge as ringAndEdgeIn, sorted for each edge by their fractional distance on this edge. It's length hence equals numRings.
+  // The Pseudo vertex list is an array with for each ring an array with for each edge an array containing the pseudo-vertices (as made by their constructor) that have this ring and edge as ringAndEdgeIn, sorted for each edge by their fractional distance on this edge. It's length hence equals ringCount.
   let pseudoVtxListByRingAndEdge = [];
-  // The intersection list is an array containing intersections (as made by their constructor). First all numvertices ring-vertex-intersections, then all self-intersections (intra- and inter-ring). The order of the latter is not important but is permanent once given.
+  // The intersection list is an array containing intersections (as made by their constructor). First all verticeCount ring-vertex-intersections, then all self-intersections (intra- and inter-ring). The order of the latter is not important but is permanent once given.
   let isectList = [];
   // Adding ring-pseudo-vertices to pseudoVtxListByRingAndEdge and ring-vertex-intersections to isectList
-  for (let i = 0; i < numRings; i++) {
+  for (let i = 0; i < ringCount; i++) {
     pseudoVtxListByRingAndEdge.push([]);
     for (let j = 0; j < feature.geometry.coordinates[i].length-1; j++) {
       // Each edge will feature one ring-pseudo-vertex in its array, on the last position. i.e. edge j features the ring-pseudo-vertex of the ring vertex j+1, which has ringAndEdgeIn = [i,j], on the last position.
       pseudoVtxListByRingAndEdge[i].push([new PseudoVtx(feature.geometry.coordinates[i][(j+1).modulo(feature.geometry.coordinates[i].length-1)], 1, [i, j], [i, (j+1).modulo(feature.geometry.coordinates[i].length-1)], undefined)]);
-      // The first numvertices elements in isectList correspond to the ring-vertex-intersections
+      // The first verticeCount elements in isectList correspond to the ring-vertex-intersections
       isectList.push(new Isect(feature.geometry.coordinates[i][j], [i, (j-1).modulo(feature.geometry.coordinates[i].length-1)], [i, j], undefined, undefined, false, true));
     }
   }
@@ -122,7 +115,7 @@ export default feature => {
         const coordToFind = pseudoVtxListByRingAndEdge[i][j][k].coord;
         const IsectRbushTreeItemFound = isectRbushTree.search({minX: coordToFind[0], minY: coordToFind[1], maxX: coordToFind[0], maxY: coordToFind[1]})[0]; // We can take [0] of the result, because there is only one isect correponding to a pseudo-vertex
         let l = IsectRbushTreeItemFound.index;
-        if (l < numvertices) { // Special treatment at ring-vertices: we correct the misnaming that happened in the previous block, since ringAndEdgeOut = ringAndEdge2 for ring vertices.
+        if (l < verticeCount) { // Special treatment at ring-vertices: we correct the misnaming that happened in the previous block, since ringAndEdgeOut = ringAndEdge2 for ring vertices.
           isectList[l].nxtIsectAlongRingAndEdge2 = pseudoVtxListByRingAndEdge[i][j][k].nxtIsectAlongEdgeIn;
         } else { // Port the knowledge of the next intersection from the pseudo-vertices to the intersections, depending on how the edges are labeled in the pseudo-vertex and intersection.
           if (equalArrays(isectList[l].ringAndEdge1, pseudoVtxListByRingAndEdge[i][j][k].ringAndEdgeIn)) {
@@ -141,7 +134,7 @@ export default feature => {
   let queue = []
   // For each output ring, add the ring-vertex-intersection with the smalles x-value (i.e. the left-most) as a start intersection. By choosing such an extremal intersections, we are sure to start at an intersection that is a convex vertex of its output ring. By adding them all to the queue, we are sure that no rings will be forgotten. If due to ring-intersections such an intersection will be encountered while walking, it will be removed from the queue.
   let i = 0;
-  for (let j = 0; j < numRings; j++) {
+  for (let j = 0; j < ringCount; j++) {
     let leftIsect = i;
     for (let k = 0; k < feature.geometry.coordinates[j].length-1; k++) {
       if (isectList[i].coord[0] < isectList[leftIsect].coord[0]) {
