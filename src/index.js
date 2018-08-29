@@ -32,13 +32,16 @@ export default feature => {
   const rings = R.path(['geometry', 'coordinates'], feature);
   const ringCount = R.length(rings);
   const vertices = normalizeVertices(rings);
-  const verticeCount = R.length(vertices); // number of input ring vertices, with the last closing vertices not counted
+  const verticeCount = R.length(vertices);
 
   // Compute self-intersections
   let selfIsectsData = isects(feature, (...args) => args);
   let numSelfIsect = selfIsectsData.length;
 
-  // If no self-intersections are found, the input rings are the output rings. Hence, we must only compute their winding numbers, net winding numbers and (since ohers rings could lie outside the first ring) parents.
+  // If no self-intersections are found, the input rings are the output rings.
+  // Hence, we must only compute their winding numbers,
+  // net winding numbers and (since ohers rings could lie outside the first ring)
+  // parents.
   if (numSelfIsect == 0) {
     const outputFeatureArray = [];
     for (let i = 0; i < ringCount; i++) {
@@ -360,18 +363,4 @@ function equalArrays(array1, array2) {
 // Fix Javascript modulo for negative number. From http://stackoverflow.com/questions/4467539/javascript-modulo-not-behaving
 Number.prototype.modulo = function(n) {
   return ((this % n) + n) % n;
-}
-
-// Function to check if array is unique (i.e. all unique elements, i.e. no duplicate elements)
-function isUnique(array) {
-  let u = {};
-  let isUnique = 1;
-  for (let i = 0, l = array.length; i < l; ++i){
-    if(u.hasOwnProperty(array[i])) {
-      isUnique = 0;
-      break;
-    }
-    u[array[i]] = 1;
-  }
-  return isUnique;
 }
