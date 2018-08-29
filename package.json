@@ -1,13 +1,23 @@
 {
   "name": "polygon-complex",
   "version": "0.0.0",
-  "author": { "name": "DE WINTER Tim" },
+  "author": {
+    "name": "DE WINTER Tim"
+  },
   "license": "MIT",
   "main": "index.js",
-  "files": [ "index.js" ],
-  "repository": { "type": "git", "url": "git+https://github.com/TDeW/polygon-complex.git" },
-  "bugs": { "url": "https://github.com/TDeW/polygon-complex/issues" },
+  "files": [
+    "index.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TDeW/polygon-complex.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TDeW/polygon-complex/issues"
+  },
   "homepage": "https://github.com/TDeW/polygon-complex#readme",
+  "jest": { "transform": { "^.+\\.jsx?$": "babel-jest" } },
   "scripts": {
     "clean": "git clean -fdX .",
     "build": "node ./tools/build.js",
@@ -28,6 +38,7 @@
     "@turf/within": "^4.5.0",
     "debug": "^2.6.3",
     "geojson-polygon-self-intersections": "^1.1.2",
+    "ramda": "^0.25.0",
     "rbush": "^2.0.1"
   },
   "devDependencies": {
