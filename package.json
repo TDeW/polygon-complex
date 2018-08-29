@@ -1,32 +1,26 @@
 {
-  "name": "simplepolygon",
-  "version": "1.2.2",
+  "name": "polygon-complex",
+  "version": "0.0.0",
+  "author": { "name": "DE WINTER Tim" },
+  "license": "MIT",
   "main": "index.js",
-  "files": [
-    "index.js"
-  ],
+  "files": [ "index.js" ],
+  "repository": { "type": "git", "url": "git+https://github.com/TDeW/polygon-complex.git" },
+  "bugs": { "url": "https://github.com/TDeW/polygon-complex/issues" },
+  "homepage": "https://github.com/TDeW/polygon-complex#readme",
   "scripts": {
-    "test": "node test.js",
-    "bench": "node bench.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mclaeysb/simplepolygon.git"
+    "clean": "git clean -fdX .",
+    "build": "node ./tools/build.js",
+    "lint": "eslint src --ignore-pattern 'src/__tests__/**'",
+    "lint:fix": "eslint src --fix --ignore-pattern 'src/__tests__/**'",
+    "test": "jest src/__tests__",
+    "test:watch": "jest src/__tests__ --watch"
   },
   "keywords": [
     "polygon",
-    "complex polygon",
-    "simple polygon",
-    "self-intersection",
-    "winding number"
+    "complex",
+    "self-intersecting"
   ],
-  "author": {
-    "name": "Manuel Claeys Bouuaert"
-  },
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/mclaeysb/simplepolygon/issues"
-  },
   "dependencies": {
     "@turf/area": "^4.5.0",
     "@turf/helpers": "^4.5.0",
@@ -38,10 +32,15 @@
   },
   "devDependencies": {
     "@turf/meta": "^4.0.1",
-    "benchmark": "^2.1.4",
-    "load-json-file": "^2.0.0",
-    "tape": "^4.6.3",
-    "write-json-file": "^2.0.0"
-  },
-  "homepage": "https://github.com/mclaeysb/simplepolygon#readme"
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^9.0.0",
+    "babel-jest": "^23.4.2",
+    "babel-preset-env": "^1.7.0",
+    "eslint": "^5.4.0",
+    "eslint-plugin-import": "^2.14.0",
+    "jest": "^23.5.0",
+    "load-json-file": "^5.0.0",
+    "write-json-file": "^3.0.0"
+  }
 }
