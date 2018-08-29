@@ -29,14 +29,13 @@ import normalizeVertices from './normalizeVertices';
 export default feature => {
   checkInput(feature);
 
-  const ringCount = R.length(R.path(['geometry', 'coordinates'], feature));
-  const vertices = normalizeVertices(R.path(['geometry', 'coordinates'], feature));
+  const rings = R.path(['geometry', 'coordinates'], feature);
+  const ringCount = R.length(rings);
+  const vertices = normalizeVertices(rings);
   const verticeCount = R.length(vertices); // number of input ring vertices, with the last closing vertices not counted
 
   // Compute self-intersections
-  let selfIsectsData = isects(feature, function filterFn(isect, ring0, edge0, start0, end0, frac0, ring1, edge1, start1, end1, frac1, unique){
-    return [isect, ring0, edge0, start0, end0, frac0, ring1, edge1, start1, end1, frac1, unique];
-  });
+  let selfIsectsData = isects(feature, (...args) => args);
   let numSelfIsect = selfIsectsData.length;
 
   // If no self-intersections are found, the input rings are the output rings. Hence, we must only compute their winding numbers, net winding numbers and (since ohers rings could lie outside the first ring) parents.

@@ -18,7 +18,7 @@ const duplicateHeadVertice = when(
   dropLast(1)
 );
 
-const removeDuplicateFollowingVertices = reduce(
+const removeDuplicatedVertices = reduce(
   (arr, val) => {
     if (equals(last(arr), val)) return arr;
     return append(val, arr)
@@ -31,10 +31,7 @@ const removeDuplicateFollowingVertices = reduce(
 export default reduce(
   useWith(
     concat,
-    [
-      identity,
-      compose(removeDuplicateFollowingVertices, duplicateHeadVertice)
-    ]
+    [identity, compose(removeDuplicatedVertices, duplicateHeadVertice)]
   ),
   []
 )
