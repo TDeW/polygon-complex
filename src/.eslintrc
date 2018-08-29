@@ -8,7 +8,7 @@
     "env": { "jest": true, "node": true },
     "rules": {
       "indent": ["error", 2],
-      "max-len": [1, 120],
-      "no-unused-vars": 1
+      "no-unused-vars": 1,
+      "no-var": 1
     }
 }
