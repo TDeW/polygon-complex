@@ -1,9 +1,9 @@
 import converge from 'ramda/src/converge';
 import identity from 'ramda/src/identity';
-import unless from 'ramda/src/unless';
+import pathEq from 'ramda/src/pathEq';
 import propEq from 'ramda/src/propEq';
 import propIs from 'ramda/src/propIs';
-import pathEq from 'ramda/src/pathEq';
+import unless from 'ramda/src/unless';
 
 
 
