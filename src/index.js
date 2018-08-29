@@ -4,33 +4,28 @@ import inside from '@turf/inside'
 import area from '@turf/area'
 import rbush from 'rbush'
 
+import checkInput from './checkInput';
+
 /**
-* Takes a complex (i.e. self-intersecting) geojson polygon, and breaks it down into its composite simple, non-self-intersecting one-ring polygons.
+* Takes a complex (i.e. self-intersecting) geojson polygon, and breaks
+* it down into its composite simple, non-self-intersecting one-ring polygons.
 *
-* @module simplepolygon
-* @param {Feature} feature Input polygon. This polygon may be unconform the {@link https://en.wikipedia.org/wiki/Simple_Features|Simple Features standard} in the sense that it's inner and outer rings may cross-intersect or self-intersect, that the outer ring must not contain the optional inner rings and that the winding number must not be positive for the outer and negative for the inner rings.
-* @return {FeatureCollection} Feature collection containing the simple, non-self-intersecting one-ring polygon features that the complex polygon is composed of. These simple polygons have properties such as their parent polygon, winding number and net winding number.
-*
-* @example
-* const poly = {
-*   "type": "Feature",
-*   "geometry": {
-*     "type": "Polygon",
-*     "coordinates": [[[0,0],[2,0],[0,2],[2,2],[0,0]]]
-*   }
-* };
-*
-* const result = simplepolygon(poly);
-*
-* // =result
-* // which will be a featureCollection of two polygons, one with coordinates [[[0,0],[2,0],[1,1],[0,0]]], parent -1, winding 1 and net winding 1, and one with coordinates [[[1,1],[0,2],[2,2],[1,1]]], parent -1, winding -1 and net winding -1
+* @module polygon-complex
+* @param {Feature} feature Input polygon. This polygon may be unconform
+* the {@link https://en.wikipedia.org/wiki/Simple_Features|Simple Features standard}
+* in the sense that it's inner and outer rings may cross-intersect or self-intersect,
+* that the outer ring must not contain the optional inner rings and that the winding
+* number must not be positive for the outer and negative for the inner rings.
+* @return {FeatureCollection} Feature collection containing the simple,
+* non-self-intersecting one-ring polygon features that the complex polygon is
+* composed of. These simple polygons have properties such as their parent
+* polygon, winding number and net winding number.
 */
 
+
+
 export default feature => {
-  // Check input
-  if (feature.type != "Feature") throw new Error("The input must a geojson object of type Feature");
-  if ((feature.geometry === undefined) || (feature.geometry == null)) throw new Error("The input must a geojson object with a non-empty geometry");
-  if (feature.geometry.type != "Polygon") throw new Error("The input must be a geojson Polygon");
+  checkInput(feature);
 
   // Process input
   let numRings = feature.geometry.coordinates.length;
@@ -42,7 +37,7 @@ export default feature => {
     }
     vertices.push.apply(vertices,ring.slice(0,ring.length-1));
   }
-  if (!isUnique(vertices)) throw new Error("The input polygon may not have duplicate vertices (except for the first and last vertex of each ring)");
+  if (!isUnique(vertices)) throw new Error('The input polygon may not have duplicate vertices (except for the first and last vertex of each ring)');
   let numvertices = vertices.length; // number of input ring vertices, with the last closing vertices not counted
 
   // Compute self-intersections
@@ -325,7 +320,7 @@ function isConvex(pts, righthanded){
   // 'pts' is an [x,y] pair
   // 'righthanded' is a boolean
   if (typeof(righthanded) === 'undefined') righthanded = true;
-  if (pts.length != 3) throw new Error("This function requires an array of three points [x,y]");
+  if (pts.length != 3) throw new Error('This function requires an array of three points [x,y]');
   let d = (pts[1][0] - pts[0][0]) * (pts[2][1] - pts[0][1]) - (pts[1][1] - pts[0][1]) * (pts[2][0] - pts[0][0]);
   return (d >= 0) == righthanded;
 }
