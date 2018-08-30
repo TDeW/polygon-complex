@@ -1,6 +1,6 @@
 import rbush from 'rbush';
 
-import arrayEquals from './arrayEquals';
+import lineIntersection from './lineIntersection';
 
 
 
@@ -85,12 +85,12 @@ module.exports = function(feature, filterFn, options0) {
   }
   // Function to check if two edges intersect and add the intersection to the output
   function ifIsectAddToOutput(ring0, edge0, ring1, edge1) {
-    let start0 = coord[ring0][edge0];
-    let end0 = coord[ring0][edge0+1];
-    let start1 = coord[ring1][edge1];
-    let end1 = coord[ring1][edge1+1];
+    const start0 = coord[ring0][edge0];
+    const end0 = coord[ring0][edge0+1];
+    const start1 = coord[ring1][edge1];
+    const end1 = coord[ring1][edge1+1];
 
-    let isect = intersect(start0, end0, start1, end1);
+    const isect = lineIntersection(start0, end0, start1, end1);
 
     if (isect == null) return; // discard parallels and coincidence
     frac0, frac1;
@@ -155,28 +155,4 @@ module.exports = function(feature, filterFn, options0) {
     return {minX: minX, minY: minY, maxX: maxX, maxY: maxY, ring: ring, edge: edge};
   }
 
-}
-
-// Function to compute where two lines (not segments) intersect. From https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
-function intersect(start0, end0, start1, end1) {
-  if (
-    arrayEquals(start0,start1) ||
-    arrayEquals(start0,end1) ||
-    arrayEquals(end0,start1) ||
-    arrayEquals(end1,start1)
-  ) return null;
-
-  let x0 = start0[0],
-    y0 = start0[1],
-    x1 = end0[0],
-    y1 = end0[1],
-    x2 = start1[0],
-    y2 = start1[1],
-    x3 = end1[0],
-    y3 = end1[1];
-  let denom = (x0 - x1) * (y2 - y3) - (y0 - y1) * (x2 - x3);
-  if (denom == 0) return null;
-  let x4 = ((x0 * y1 - y0 * x1) * (x2 - x3) - (x0 - x1) * (x2 * y3 - y2 * x3)) / denom;
-  let y4 = ((x0 * y1 - y0 * x1) * (y2 - y3) - (y0 - y1) * (x2 * y3 - y2 * x3)) / denom;
-  return [x4, y4];
 }

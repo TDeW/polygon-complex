@@ -300,7 +300,11 @@ const PseudoVtx = function (coord, param, ringAndEdgeIn, ringAndEdgeOut, nxtIsec
   this.nxtIsectAlongEdgeIn = nxtIsectAlongEdgeIn; // The next intersection when following the incomming edge (so not when following ringAndEdgeOut!)
 }
 
-// Constructor for an intersection. There are two intersection-pseudo-vertices per self-intersection and one ring-pseudo-vertex per ring-vertex-intersection. Their labels 1 and 2 are not assigned a particular meaning but are permanent once given.
+// Constructor for an intersection.
+// There are two intersection-pseudo-vertices per self-intersection and one
+// ring-pseudo-vertex per ring-vertex-intersection.
+// Their labels 1 and 2 are not assigned a particular meaning but are
+// permanent once given.
 const Isect = function (coord, ringAndEdge1, ringAndEdge2, nxtIsectAlongRingAndEdge1, nxtIsectAlongRingAndEdge2, ringAndEdge1Walkable, ringAndEdge2Walkable) {
   this.coord = coord; // [x,y] of this intersection
   this.ringAndEdge1 = ringAndEdge1; // first edge of this intersection
