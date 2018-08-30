@@ -6,7 +6,8 @@ import rbush from 'rbush'
 
 import checkInput from './checkInput';
 import normalizeVertices from './normalizeVertices';
-import selfIntersections from './selfIntersections'
+import selfIntersections from './selfIntersections';
+import arrayEquals from './arrayEquals';
 
 /**
 * Takes a complex (i.e. self-intersecting) geojson polygon, and breaks
@@ -120,7 +121,7 @@ export default feature => {
         if (l < verticeCount) { // Special treatment at ring-vertices: we correct the misnaming that happened in the previous block, since ringAndEdgeOut = ringAndEdge2 for ring vertices.
           isectList[l].nxtIsectAlongRingAndEdge2 = pseudoVtxListByRingAndEdge[i][j][k].nxtIsectAlongEdgeIn;
         } else { // Port the knowledge of the next intersection from the pseudo-vertices to the intersections, depending on how the edges are labeled in the pseudo-vertex and intersection.
-          if (equalArrays(isectList[l].ringAndEdge1, pseudoVtxListByRingAndEdge[i][j][k].ringAndEdgeIn)) {
+          if (arrayEquals(isectList[l].ringAndEdge1, pseudoVtxListByRingAndEdge[i][j][k].ringAndEdgeIn)) {
             isectList[l].nxtIsectAlongRingAndEdge1 = pseudoVtxListByRingAndEdge[i][j][k].nxtIsectAlongEdgeIn;
           } else {
             isectList[l].nxtIsectAlongRingAndEdge2 = pseudoVtxListByRingAndEdge[i][j][k].nxtIsectAlongEdgeIn;
@@ -185,7 +186,7 @@ export default feature => {
       nxtIsect = isectList[startIsect].nxtIsectAlongRingAndEdge2;
     }
     // While we have not arrived back at the same intersection, keep walking
-    while (!equalArrays(isectList[startIsect].coord,isectList[nxtIsect].coord)){
+    while (!arrayEquals(isectList[startIsect].coord,isectList[nxtIsect].coord)){
       currentOutputRingCoords.push(isectList[nxtIsect].coord);
       // If the next intersection is queued, we can remove it, because we will go there now.
       let nxtIsectInQueue = undefined;
@@ -198,7 +199,7 @@ export default feature => {
       // If we have never walked away from this new intersection along the other ring and edge then we will soon do, add the intersection (and the parent wand winding number) to the queue
       // (We can predict the winding number and parent as follows: if the edge is convex, the other output ring started from there will have the alternate winding and lie outside of the current one, and thus have the same parent ring as the current ring. Otherwise, it will have the same winding number and lie inside of the current ring. We are, however, only sure of this of an output ring started from there does not enclose the current ring. This is why the initial queue's intersections must be sorted such that outer ones come out first.)
       // We then update the other two walking variables.
-      if (equalArrays(walkingRingAndEdge,isectList[nxtIsect].ringAndEdge1)) {
+      if (arrayEquals(walkingRingAndEdge,isectList[nxtIsect].ringAndEdge1)) {
         walkingRingAndEdge = isectList[nxtIsect].ringAndEdge2;
         isectList[nxtIsect].ringAndEdge2Walkable = false;
         if (isectList[nxtIsect].ringAndEdge1Walkable) {
@@ -333,31 +334,6 @@ function windingOfRing(ring){
     winding = -1;
   }
   return winding
-}
-
-// Function to compare Arrays of numbers. From http://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
-function equalArrays(array1, array2) {
-  // if the other array is a falsy value, return
-  if (!array1 || !array2)
-    return false;
-
-  // compare lengths - can save a lot of time
-  if (array1.length != array2.length)
-    return false;
-
-  for (let i = 0, l=array1.length; i < l; i++) {
-    // Check if we have nested arrays
-    if (array1[i] instanceof Array && array2[i] instanceof Array) {
-      // recurse into the nested arrays
-      if (!equalArrays(array1[i],array2[i]))
-        return false;
-    }
-    else if (array1[i] != array2[i]) {
-      // Warning - two different object instances will never be equal: {x:20} != {x:20}
-      return false;
-    }
-  }
-  return true;
 }
 
 // Fix Javascript modulo for negative number. From http://stackoverflow.com/questions/4467539/javascript-modulo-not-behaving

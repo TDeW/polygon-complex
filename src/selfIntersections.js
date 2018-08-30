@@ -1,5 +1,7 @@
-// Find self-intersections in geojson polygon (possibly with interior rings)
-let rbush = require('rbush');
+import rbush from 'rbush';
+
+import arrayEquals from './arrayEquals';
+
 
 
 let merge = function(){
@@ -20,6 +22,9 @@ const defaults = {
   reportVertexOnEdge: false
 };
 
+
+
+// Find self-intersections in geojson polygon (possibly with interior rings)
 module.exports = function(feature, filterFn, options0) {
   let options;
   if("object" === typeof options0){
@@ -154,7 +159,13 @@ module.exports = function(feature, filterFn, options0) {
 
 // Function to compute where two lines (not segments) intersect. From https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
 function intersect(start0, end0, start1, end1) {
-  if (equalArrays(start0,start1) || equalArrays(start0,end1) || equalArrays(end0,start1) || equalArrays(end1,start1)) return null;
+  if (
+    arrayEquals(start0,start1) ||
+    arrayEquals(start0,end1) ||
+    arrayEquals(end0,start1) ||
+    arrayEquals(end1,start1)
+  ) return null;
+
   let x0 = start0[0],
     y0 = start0[1],
     x1 = end0[0],
@@ -168,29 +179,4 @@ function intersect(start0, end0, start1, end1) {
   let x4 = ((x0 * y1 - y0 * x1) * (x2 - x3) - (x0 - x1) * (x2 * y3 - y2 * x3)) / denom;
   let y4 = ((x0 * y1 - y0 * x1) * (y2 - y3) - (y0 - y1) * (x2 * y3 - y2 * x3)) / denom;
   return [x4, y4];
-}
-
-// Function to compare Arrays of numbers. From http://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
-function equalArrays(array1, array2) {
-  // if the other array is a falsy value, return
-  if (!array1 || !array2)
-    return false;
-
-  // compare lengths - can save a lot of time
-  if (array1.length != array2.length)
-    return false;
-
-  for (let i = 0, l=array1.length; i < l; i++) {
-    // Check if we have nested arrays
-    if (array1[i] instanceof Array && array2[i] instanceof Array) {
-      // recurse into the nested arrays
-      if (!equalArrays(array1[i],array2[i]))
-        return false;
-    }
-    else if (array1[i] != array2[i]) {
-      // Warning - two different object instances will never be equal: {x:20} != {x:20}
-      return false;
-    }
-  }
-  return true;
 }
