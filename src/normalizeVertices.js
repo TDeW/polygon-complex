@@ -13,25 +13,31 @@ import when from 'ramda/src/when';
 
 
 
-const duplicateHeadVertice = when(
-  converge(equals, [last, head]),
+const filterExtremesDuplicates = when(
+  converge(equals, [head, last]),
   dropLast(1)
 );
 
-const removeDuplicatedVertices = reduce(
+const filterFollowingDuplicates = reduce(
   (arr, val) => {
     if (equals(last(arr), val)) return arr;
     return append(val, arr)
   },
   []
-)
+);
 
 
 
 export default reduce(
   useWith(
     concat,
-    [identity, compose(removeDuplicatedVertices, duplicateHeadVertice)]
+    [
+      identity,
+      compose(
+        filterFollowingDuplicates,
+        filterExtremesDuplicates
+      )
+    ]
   ),
   []
-)
+);

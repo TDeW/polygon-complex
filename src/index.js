@@ -1,5 +1,4 @@
 import * as R from 'ramda';
-import isects from 'geojson-polygon-self-intersections'
 import helpers from '@turf/helpers'
 import inside from '@turf/inside'
 import area from '@turf/area'
@@ -7,6 +6,7 @@ import rbush from 'rbush'
 
 import checkInput from './checkInput';
 import normalizeVertices from './normalizeVertices';
+import selfIntersections from './selfIntersections'
 
 /**
 * Takes a complex (i.e. self-intersecting) geojson polygon, and breaks
@@ -35,7 +35,7 @@ export default feature => {
   const verticeCount = R.length(vertices);
 
   // Compute self-intersections
-  let selfIsectsData = isects(feature, (...args) => args);
+  let selfIsectsData = selfIntersections(feature, (...args) => args);
   let numSelfIsect = selfIsectsData.length;
 
   // If no self-intersections are found, the input rings are the output rings.
