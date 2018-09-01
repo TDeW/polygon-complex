@@ -21,7 +21,7 @@ const filterExtremesDuplicates = when(
 const filterFollowingDuplicates = reduce(
   (arr, val) => {
     if (equals(last(arr), val)) return arr;
-    return append(val, arr)
+    return append(val, arr);
   },
   []
 );
@@ -36,7 +36,7 @@ export default reduce(
       compose(
         filterFollowingDuplicates,
         filterExtremesDuplicates
-      )
+      ),
     ]
   ),
   []

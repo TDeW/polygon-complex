@@ -8,6 +8,14 @@ describe('array/filterFollowingDuplicates', () => {
     expect(filterFollowingDuplicates).toBeInstanceOf(Function);
   });
 
+  test('should return an array', () => {
+    // PARAMS
+    const array = [];
+
+
+    expect(filterFollowingDuplicates(array)).toBeInstanceOf(Array);
+  });
+
   test('should do nothing on empty array', () => {
     // PARAMS
     const array = [];
