@@ -11,6 +11,8 @@ import when from 'ramda/src/when';
 * @param {Function} condition curried function val => array => truth
 * @param {Any} value
 * @param {Array} array
+*
+* @return {Array}
 */
 export default curryN(2,
   (condition, value) =>
