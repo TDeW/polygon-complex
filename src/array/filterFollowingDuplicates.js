@@ -1,5 +1,6 @@
 import complement from 'ramda/src/complement';
 
+import emptyArray from '../internals/emptyArray';
 import appendWhen from './appendWhen';
 import equalsLast from './equalsLast';
 import reduce from './reduce';
@@ -16,5 +17,5 @@ import reduce from './reduce';
 */
 export default reduce(
   appendWhen(complement(equalsLast)),
-  []
+  emptyArray
 );
