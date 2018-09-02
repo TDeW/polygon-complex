@@ -1,6 +1,8 @@
+import allPass from 'ramda/src/allPass';
 import when from 'ramda/src/when';
 
 import dropLast1 from '../internals/dropLast1';
+import lengthGreaterThan1 from '../internals/lengthGreaterThan1';
 import headEqualsLast from './headEqualsLast';
 
 
@@ -13,6 +15,6 @@ import headEqualsLast from './headEqualsLast';
 * @return {Array}
 */
 export default when(
-  headEqualsLast,
+  allPass([lengthGreaterThan1, headEqualsLast]),
   dropLast1
 );
