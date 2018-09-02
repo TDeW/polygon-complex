@@ -64,6 +64,8 @@ describe('array/appendWhen', () => {
 
     // RESULT
     const expected = [1];
+
+
     expect(appendWhen(condition)(value)(array)).toEqual(expected);
   });
 
@@ -75,7 +77,55 @@ describe('array/appendWhen', () => {
 
     // RESULT
     const expected = [];
+
+
     expect(appendWhen(condition)(value)(array)).toEqual(expected);
+  });
+
+  test('should append based on condition results', () => {
+    const tested = [
+      {
+        // PARAMS
+        condition: value => array => value === array[0],
+        value: 1,
+        array: [1],
+
+        // RESULT
+        expected: [1, 1],
+      },
+      {
+        // PARAMS
+        condition: value => array => value === array[0],
+        value: 2,
+        array: [1],
+
+        // RESULT
+        expected: [1],
+      },
+      {
+        // PARAMS
+        condition: value => () => value % 2 === 0,
+        value: 2,
+        array: [1],
+
+        // RESULT
+        expected: [1, 2],
+      },
+      {
+        // PARAMS
+        condition: value => array => value % 2 === array[0] % 2,
+        value: 2,
+        array: [1],
+
+        // RESULT
+        expected: [1],
+      },
+    ];
+
+
+    tested.forEach(({ condition, value, array, expected }) => {
+      expect(appendWhen(condition)(value)(array)).toEqual(expected);
+    });
   });
 
 });
